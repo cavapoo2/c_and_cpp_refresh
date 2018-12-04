@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+typedef int bool;
+#define true 1
+#define false 0;
 
 typedef struct Node
 {
@@ -57,6 +60,13 @@ void printNodes(Node *head)
     }
     printf("\n");
 }
+void printCircle(Node* n, int t) {
+    printf("\n");
+    for(int i=0; i < t; i++) {
+        printf("%d,", n->data);
+        n = n->next;
+    }
+}
 void printNodesMsg(Node *head,const char* msg)
 {
     Node *start = head;
@@ -81,6 +91,20 @@ void clearNodes(Node **head)
     }
     *head = NULL;
 }
+void clearCircle(Node **head)
+{
+    Node* first = *head;
+    Node* cur = first->next;
+    while (first != cur)
+    {
+        Node *nxt = cur->next;
+        free(cur);
+        cur = nxt;
+    }
+    free(first);
+    *head = NULL;
+}
+
 void reverse(Node** head) {
     if(*head == NULL) {
         return;
@@ -103,10 +127,40 @@ Node* testReverse(Node* in) {
 }
 Node* generateN(int n) {
     Node *head = (Node*) calloc(1,sizeof(Node));
+    printf("\nin g");
     for(int i=1; i < n; i++){
-        insertBack(head,i);
+        insertBack(head,i); //obviously not efficient!
     }
+    printf("\nout g %d", head->data);
     return head;
+}
+Node* generateNCircle(int n) {
+    Node *head = (Node*) calloc(1,sizeof(Node));
+    Node* cur = head;
+    Node* nxt = NULL;
+    for(int i=1; i < n; i++){
+       nxt = (Node*) calloc(1,sizeof(Node));
+       nxt->data = i;
+       cur->next = nxt;
+       cur = cur->next;
+    }
+    nxt->next = head;
+    return head;
+}
+bool checkCircle(Node* head) {
+   Node * fast = head->next;
+   Node* slow = head;
+   while(fast != NULL && slow != NULL) {
+       printf("h1");
+       if(fast == slow) {
+           return true;
+       }
+       fast = fast->next;
+       if(fast != NULL)
+            fast = fast->next;
+       slow = slow->next;
+   }
+   return false; 
 }
 
 int main(void)
@@ -134,5 +188,24 @@ int main(void)
     printNodesMsg(head,"before reverse");
     reverse(&head);
     printNodesMsg(head,"after reverse");
+    clearNodes(&head);
+
+    //try printCircle
+    head = generateNCircle(10);
+    printCircle(head,30); //30 iterations
+    printf("\nShould be circle %d\n", checkCircle(head));
+    Node* head2 = generateN(9);
+    printf("\nShould not be circle %d\n", !checkCircle(head2));
+    printf("\nd0");
+    Node* head3 = generateN(10);
+    printf("\nd1 %d");
+    printf("\nShould not be circle %d\n", !checkCircle(head3));
+    clearCircle(&head);
+    clearNodes(&head2);
+    clearNodes(&head3);
+
+
+
+
     return 0;
 }
